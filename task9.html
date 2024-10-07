@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="formSub(event)">
+        <label for="exp">Choose Expense Amount:</label>
+            <input type="number" id="exp">
+        <label for="des">Choose Description:</label>
+            <input type="text" id="des">
+        <label for="cat">
+            Choose Category:
+        </label>
+        <select name="options" id="cat">
+            <option value="mov">Movies</option>
+            <option value="snake">Snacks</option>
+            <option value="fuel">Fuel</option>
+            <option value="can">Candy</option>
+            <option value="clo">Clothes</option>
+        </select>
+        <button type="submit">Add Expense</button>
+        <ul></ul>
+    </form>
+</body>
+<script>
+    const form=document.querySelector('form');
+    const userList=document.querySelector('ul');
+    function formSub(event) {
+        event.preventDefault();
+
+        const Expense=document.getElementById('exp').value;
+        const Description=document.getElementById('des').value;
+        const Category=document.getElementById('cat').value;
+
+        const NewUser={Expense,Description,Category};
+        let users=JSON.parse(localStorage.getItem('Expense Details')) || [];
+        users.push(NewUser);
+
+        localStorage.setItem('Expense Details', JSON.stringify(users));
+        displayUsers();
+        form.reset();
+    }
+    function displayUsers() {
+        userList.innerHTML='';
+        const users=JSON.parse(localStorage.getItem('Expense Details')) || [];
+
+        users.forEach((user,index) => {
+            const listItem=document.createElement('li');
+            listItem.textContent=`${user.Expense}-${user.Description}-${user.Category}`;
+            
+            const deletebtn=document.createElement('button');
+            deletebtn.textContent='Delete Expense';
+            deletebtn.addEventListener('click',function () {
+                deleteUser(index);
+            })
+
+            const editbtn=document.createElement('button');
+            editbtn.textContent='Edit Expense';
+            editbtn.addEventListener('click', function () {
+                editUser(index,user);
+            })
+
+            listItem.appendChild(deletebtn);
+            listItem.appendChild(editbtn);
+            userList.appendChild(listItem);
+        });
+    }
+    function deleteUser(index) {
+        const users=JSON.parse(localStorage.getItem('Expense Details')) || [];
+        users.splice(index,1);
+        localStorage.setItem('Expense Details',JSON.stringify(users));
+        displayUsers();
+    }
+    function editUser(index,user) {
+        document.getElementById('exp').value=user.Expense;
+        document.getElementById('des').value=user.Description;
+        document.getElementById('cat').value=user.Category;
+
+        deleteUser(index);
+    }
+</script>
+</html>
