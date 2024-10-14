@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+</head>
+<body>
+    <form id="todoForm">
+        <label for="todo">Todo Name:</label>
+            <input type="text" id="todo">
+        <label for="des">Description:</label>
+            <input type="text" id="des">
+        <button type="submit">Add Item</button>
+        <h3>Todo List</h3>
+        <ul id="todoList"></ul>
+        <h3>Todo Done</h3>
+        <ul id="doneList"></ul>
+    </form>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+<script>
+	document.getElementById('todoForm').addEventListener('submit', addTodoItem);
+    function addTodoItem(event) {
+        event.preventDefault();
+        const todoName = document.getElementById("todo").value;
+        const description = document.getElementById("des").value;
+
+        const TodoRem = {
+            TodoName: todoName,
+            Description: description,
+        };
+        axios
+            .post("https://crudcrud.com/api/483312a58dff4be59c566f6df54d622e/TodoData",TodoRem)
+            .then((response) => displayUserOnScreen(response.data))
+            .catch((error) => console.log(error));
+
+        // Clearing the input fields
+        document.getElementById("todo").value = "";
+        document.getElementById("des").value = "";
+    }
+
+function displayUserOnScreen(TodoRem) {
+  const TodoItem = document.createElement("li");
+  TodoItem.appendChild(
+    document.createTextNode(`${TodoRem.TodoName} - ${TodoRem.Description}`)
+  );
+
+  const tickBtn = document.createElement("button");
+  tickBtn.appendChild(document.createTextNode("✓"));
+  TodoItem.appendChild(tickBtn);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.appendChild(document.createTextNode("x"));
+  TodoItem.appendChild(deleteBtn);
+
+  const TodoList = document.getElementById("todoList");
+  TodoList.appendChild(TodoItem);
+
+  deleteBtn.addEventListener("click", function (event) {
+  axios.delete(`https://crudcrud.com/api/483312a58dff4be59c566f6df54d622e/TodoData/${TodoRem._id}`)
+    .then(() => {
+      TodoList.removeChild(TodoItem);
+    })
+    .catch((error) => console.log(error));  });
+
+  tickBtn.addEventListener("click", function () {
+    const DoneList=document.getElementById("doneList");
+    TodoList.removeChild(TodoItem);
+    DoneList.appendChild(TodoItem);
+    tickBtn.remove();
+  });
+}
+</script>
+</html>
