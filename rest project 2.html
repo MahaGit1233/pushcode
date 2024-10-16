@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="itemsInShop">
+        <label for="item">ItemName:</label>
+            <input type="text" id="item">
+        <label for="des">Description:</label>
+            <input type="text" id="des">
+        <label for="cost">Price:</label>
+            <input type="text" id="cost">
+        <label for="quant">Quantity:</label>
+            <input type="text" id="quant">
+        <button type="submit">Add Item</button>
+        <ul></ul>
+    </form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+<script>
+    document.getElementById('itemsInShop').addEventListener('submit',Items);
+    function Items(event) {
+        event.preventDefault();
+        const itemName=document.getElementById('item').value;
+        const description=document.getElementById('des').value;
+        const price=document.getElementById('cost').value;
+        const quantity=document.getElementById('quant').value;
+
+        const addedItems={
+            ItemName:itemName,
+            Description:description,
+            Price:price,
+            Quantity:quantity
+        }
+        axios
+            .post("https://crudcrud.com/api/4cc39d373e264e209a2bd293af11da85/AddItems",addedItems)
+            .then((response)=> {
+                displayOnScreen(response.data);
+            })
+            .catch((error)=>console.log(error));
+
+        document.getElementById('item').value='';
+        document.getElementById('des').value='';
+        document.getElementById('cost').value='';
+        document.getElementById('quant').value='';
+    }
+
+    function displayOnScreen(addedItems) {
+        const itemsList=document.querySelector('ul');
+
+        const addItem=document.createElement('li');
+        addItem.appendChild(
+            document.createTextNode(`${addedItems.ItemName} - ${addedItems.Description} - ${addedItems.Price} - ${addedItems.Quantity} `)
+        );
+
+        const buy1Btn=document.createElement('button');
+        buy1Btn.appendChild(document.createTextNode('Buy1'));
+        addItem.appendChild(buy1Btn);
+
+        const buy2Btn=document.createElement('button');
+        buy2Btn.appendChild(document.createTextNode('Buy2'));
+        addItem.appendChild(buy2Btn);
+
+        const buy3Btn=document.createElement('button');
+        buy3Btn.appendChild(document.createTextNode('Buy3'));
+        addItem.appendChild(buy3Btn);
+
+        itemsList.appendChild(addItem);
+
+        buy1Btn.addEventListener('click',function () {
+            updateQuantity(addedItems, -1);
+        });
+
+        buy2Btn.addEventListener('click',function () {
+            updateQuantity(addedItems, -2);
+        });
+
+        buy3Btn.addEventListener('click',function (event) {
+            updateQuantity(addedItems, -3);
+        });
+    }
+
+    function updateQuantity(addedItems,change) {
+        const newQuantity=parseInt(addedItems.Quantity)+change;
+        const updatedItem={...addedItems,Quantity: newQuantity};
+
+        axios.put(`https://crudcrud.com/api/4cc39d373e264e209a2bd293af11da85/AddItems/${addedItems._id}`,updatedItem)
+            .then((response)=>{
+                addedItems.Quantity=newQuantity;
+                console.log(response.data);
+            })
+            .catch((error)=>{
+                console.log(error);
+            })
+    }
+</script>
+</body>
+</html>
