@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking</title>
+</head>
+<style>
+    h1 {
+        text-align: center;
+    }
+
+    .filterDiv {
+        justify-content: center;
+        display: flex;
+    }
+</style>
+<body>
+    <h1>Bus Booking</h1>
+    <div class="filterDiv">
+        <label for="filter">Filter:</label>
+        <select name="FilterforBuses" id="filter">
+            <option value="all">All</option>
+            <option value="Bus 1">Bus 1</option>
+            <option value="Bus 2">Bus 2</option>
+            <option value="Bus 3">Bus 3</option>
+        </select>
+    </div> <br><br>
+    <form id="BusBooking">
+        <label for="username">Name:</label>
+            <input type="text" id="username"> <br><br>
+        <label for="mail">Email:</label>
+            <input type="email" id="mail"> <br><br>
+        <label for="PhNo">Phone:</label>
+            <input type="tel" id="PhNo"> <br><br>
+        <label for="s1">Bus Number:</label>
+            <select name="Bus" id="s1">
+                <option value="Bus 1">Bus 1</option>
+                <option value="Bus 2">Bus 2</option>
+                <option value="Bus 3">Bus 3</option>
+            </select> <br><br>
+        <button type="submit">Book</button>
+    </form>
+    <ul></ul>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+<script>
+    const filterSlected=document.getElementById('filter');
+
+    refresh();
+    document.getElementById('BusBooking').addEventListener('submit',Booking);
+    filterSlected.addEventListener('change',refresh);
+
+    function Booking(event) {
+        event.preventDefault();
+        const bookerDetails={
+            Name:event.target.username.value,
+            Email:event.target.mail.value,
+            Phone:event.target.PhNo.value,
+            BusNumber:event.target.s1.value,
+        }
+        console.log('bus booking');
+        axios
+            .post("https://crudcrud.com/api/cc74e37895024993be98f3905e47c8e7/BusBooking",bookerDetails)
+            .then((response)=>{
+                displayOnScreen(response.data);
+            })
+            .catch((error)=>{
+                console.log(error);
+            })
+        
+        document.getElementById('username').value='';
+        document.getElementById('mail').value='';
+        document.getElementById('PhNo').value='';
+        document.getElementById('s1').value='';
+    }
+
+    function displayOnScreen(bookerDetails) {
+        const bookerList=document.querySelector('ul');
+
+        const addBooker=document.createElement('li');
+        addBooker.appendChild(
+            document.createTextNode(`${bookerDetails.Name} - ${bookerDetails.Email} - ${bookerDetails.Phone} - ${bookerDetails.BusNumber}  `)
+        );
+
+        const delBtn=document.createElement('button');
+        delBtn.appendChild(document.createTextNode('Delete'));
+        addBooker.appendChild(delBtn);
+
+        const editBtn=document.createElement('button');
+        editBtn.appendChild(document.createTextNode('Edit'));
+        addBooker.appendChild(editBtn);
+
+        bookerList.appendChild(addBooker);
+
+        delBtn.addEventListener('click', function() {
+            axios
+                .delete(`https://crudcrud.com/api/cc74e37895024993be98f3905e47c8e7/BusBooking/${bookerDetails._id}`)
+                .then((response)=>{
+                    addBooker.remove();
+                })
+                .catch((error)=>{
+                    console.log(error);
+                })
+        })
+
+        editBtn.addEventListener('click', function () {
+            const updatedBookerDetails = {
+                Name: prompt("Edit Name:", bookerDetails.Name) || bookerDetails.Name,
+                Email: prompt("Edit Email:", bookerDetails.Email) || bookerDetails.Email,
+                Phone: prompt("Edit Phone:", bookerDetails.Phone) || bookerDetails.Phone,
+                BusNumber: prompt("Edit Bus Number:", bookerDetails.BusNumber) || bookerDetails.BusNumber
+            };
+
+            axios
+                .put(`https://crudcrud.com/api/cc74e37895024993be98f3905e47c8e7/BusBooking/${bookerDetails._id}`,updatedBookerDetails)
+                .then((response)=>{
+                    addBooker.remove();
+                    displayOnScreen(updatedBookerDetails);
+                })
+                .catch((error)=>{
+                    console.log(error);
+                })
+        })
+    }
+
+    function refresh() {
+        const selectedBus=filterSlected.value;
+        axios
+            .get("https://crudcrud.com/api/cc74e37895024993be98f3905e47c8e7/BusBooking")
+            .then((response)=>{
+                response.data.forEach(book => {
+                    if(selectedBus==='all'||book.BusNumber===selectedBus) {
+                        displayOnScreen(book);
+                    }
+                });
+            })
+            .catch((error)=>{
+                console.log(error);
+            })
+    }
+</script>
+</body>
+</html>
